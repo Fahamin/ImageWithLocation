@@ -207,7 +207,7 @@ public class MainActivity extends AppCompatActivity {
                 String country = addresses.get(0).getCountryName();
                 String postalCode = addresses.get(0).getPostalCode();
                 String knownName = addresses.get(0).getFeatureName();
-                tvAddress.setText(address);
+                tvAddress.setText(address +"\n" +"Latiitude:" +latitude+"\n" +"Longitude:"+longitude+"\n" +"City:"+city);
 
             } else {
                 Log.w("My Current loction address", "No Address returned!");

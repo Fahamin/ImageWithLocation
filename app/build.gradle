@@ -43,8 +43,7 @@ dependencies {
     implementation "androidx.camera:camera-view:1.2.0-beta01"
     implementation "androidx.camera:camera-extensions:1.2.0-beta01"
     implementation "androidx.camera:camera-core:1.2.0-beta01"
-
-
+    implementation 'com.github.dangiashish:GeoTagImage:1.0.8'
     implementation 'com.google.android.gms:play-services-location:20.0.0'
 
 }

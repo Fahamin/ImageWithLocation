@@ -10,15 +10,18 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentActivity;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -35,6 +38,8 @@ import java.io.File;
 public class MainActivity2 extends AppCompatActivity implements PermissionCallback {
     private ImageView ivCamera, ivImage, ivClose;
     private static String imageStoragePath;
+    private static String imageuri;
+
     public static final String IMAGE_EXTENSION = ".jpg";
     private Uri fileUri;
     private static final int CAMERA_IMAGE_REQUEST_CODE = 2000;
@@ -82,7 +87,6 @@ public class MainActivity2 extends AppCompatActivity implements PermissionCallba
         });
     }
 
-
     // if permissions are granted for camera and location.
     private void openCamera() {
         // call Intent for ACTION_IMAGE_CAPTURE which will redirect to device camera.
@@ -118,8 +122,8 @@ public class MainActivity2 extends AppCompatActivity implements PermissionCallba
                     if (result.getResultCode() == Activity.RESULT_OK) {
                         // There are no request codes
                         Intent data = result.getData();
-
-                        try {
+                        getCameraPhotoOrientation(imageStoragePath);
+                      /*  try {
                             // now call the function createImage() and pass the uri object (line no. 90-100)
                             geoTagImage.createImage(fileUri);
 
@@ -135,9 +139,10 @@ public class MainActivity2 extends AppCompatActivity implements PermissionCallba
 
                             // after geotagged photo is created, get the new image path by using getImagePath() method
                             imageStoragePath = geoTagImage.getImagePath();
+                            imageuri = geoTagImage.getImageUri().toString();
 
-                            /* The time it takes for a Canvas to draw items on a blank Bitmap can vary depending on several factors,
-                             * such as the complexity of the items being drawn, the size of the Bitmap, and the processing power of the device.*/
+                            *//* The time it takes for a Canvas to draw items on a blank Bitmap can vary depending on several factors,
+                         * such as the complexity of the items being drawn, the size of the Bitmap, and the processing power of the device.*//*
                             new Handler().postDelayed(new Runnable() {
                                 @Override
                                 public void run() {
@@ -147,7 +152,7 @@ public class MainActivity2 extends AppCompatActivity implements PermissionCallba
 
                         } catch (GTIException e) {
                             throw new RuntimeException(e);
-                        }
+                        }*/
 
 
                         // handle the error or cancel events
@@ -158,6 +163,35 @@ public class MainActivity2 extends AppCompatActivity implements PermissionCallba
                 }
 
             });
+
+    public int getCameraPhotoOrientation(String imagePath) {
+        int rotate = 0;
+        try {
+            // context.getContentResolver().notifyChange(imageUri, null);
+            File imageFile = new File(imagePath);
+
+            ExifInterface exif = new ExifInterface(imageFile.getAbsolutePath());
+            int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+
+            switch (orientation) {
+                case ExifInterface.ORIENTATION_ROTATE_270:
+                    rotate = 270;
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_180:
+                    rotate = 180;
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_90:
+                    rotate = 90;
+                    break;
+            }
+
+            Log.i("RotateImage", "Exif orientation: " + orientation);
+            Log.i("RotateImage", "Rotate value: " + rotate);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return rotate;
+    }
 
 
     // preview of the original image

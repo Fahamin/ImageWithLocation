@@ -12,6 +12,7 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -118,22 +119,52 @@ public class MainActivity extends AppCompatActivity {
                     if (result.getResultCode() == Activity.RESULT_OK) {
                         // There are no request codes
                         Intent data = result.getData();
+
                         Bitmap bitmap = (Bitmap) data.getExtras().get("data");
                         imageView.setImageBitmap(bitmap);
 
-                        getLocation();
-
-                        Bitmap image = getBitmapFromView(layout);
-
-                        Intent shareIntent = new Intent();
-                        shareIntent.setAction(Intent.ACTION_SEND);
-                        shareIntent.putExtra(Intent.EXTRA_STREAM, getImageUri(MainActivity.this, image));
-                        shareIntent.setType("image/jpeg");
-                        startActivity(Intent.createChooser(shareIntent, "ShareBY"));
-
+                        checkOrientation(bitmap);
                     }
                 }
             });
+
+    public void checkOrientation(Bitmap bitmap) {
+        if (bitmap.getWidth() > bitmap.getHeight()) {
+            Log.i("RotateImage", "checkOrientation: " + "landscape");
+        } else {
+            Log.i("RotateImage", "checkOrientation: " + "potratite");
+
+        }
+    }
+
+    public int getCameraPhotoOrientation(Context context, Uri imageUri, String imagePath) {
+        int rotate = 0;
+        try {
+            context.getContentResolver().notifyChange(imageUri, null);
+            File imageFile = new File(imagePath);
+
+            ExifInterface exif = new ExifInterface(imageFile.getAbsolutePath());
+            int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+
+            switch (orientation) {
+                case ExifInterface.ORIENTATION_ROTATE_270:
+                    rotate = 270;
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_180:
+                    rotate = 180;
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_90:
+                    rotate = 90;
+                    break;
+            }
+
+            Log.i("RotateImage", "Exif orientation: " + orientation);
+            Log.i("RotateImage", "Rotate value: " + rotate);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return rotate;
+    }
 
 
     public Uri getImageUri(Context inContext, Bitmap inImage) {
@@ -207,7 +238,7 @@ public class MainActivity extends AppCompatActivity {
                 String country = addresses.get(0).getCountryName();
                 String postalCode = addresses.get(0).getPostalCode();
                 String knownName = addresses.get(0).getFeatureName();
-                tvAddress.setText(address +"\n" +"Latiitude:" +latitude+"\n" +"Longitude:"+longitude+"\n" +"City:"+city);
+                tvAddress.setText(address + "\n" + "Latiitude:" + latitude + "\n" + "Longitude:" + longitude + "\n" + "City:" + city);
 
             } else {
                 Log.w("My Current loction address", "No Address returned!");
